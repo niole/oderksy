@@ -1,0 +1,4 @@
+quickcheck.zip
+**/project/
+**/target/
+**/.idea/
