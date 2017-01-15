@@ -18,12 +18,10 @@ class Signal[T](expr: => T) {
     /* Disable the following "optimization" for the assignment, because we
      * want to be able to track the actual dependency graph in the tests.
      */
-    //if (myValue != newValue) {
-      myValue = newValue
-      val obs = observers
-      observers = Set()
-      obs.foreach(_.computeValue())
-    //}
+    myValue = newValue
+    val obs = observers
+    observers = Set()
+    obs.foreach(_.computeValue())
   }
 
   protected def update(expr: => T): Unit = {

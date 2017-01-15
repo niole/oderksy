@@ -39,25 +39,21 @@ package object scalashop {
 
   /** Computes the blurred RGBA value of a single pixel of the input image. */
   def boxBlurKernel(src: Img, x: Int, y: Int, radius: Int): RGBA = {
-    // TODO implement using while loops
-    /*The boxBlurKernel method takes the source image sr
-      c, coordinates x and y of the pixel, and the radius o
-      f the blur. It returns the resulting average value of
-      the surrounding pixels. We compute the average value by separating the pixel int
-      o four channels, computing the average of each of the channel
-      s, and using the four average values to produce the final pixel
-    value. In the previous figure, the radius parameter is equal to 1 an
-    d the average is computed from 9 pixels*/
-    //TODO I think this is correct but am not sure
-    val allRGBAs = for {
-      xPos <- ((x-radius) until (x+radius)).toList
-      yPos <- ((y-radius) until (y+radius)).toList
-    } yield clamp(src.apply(xPos, yPos), 0, src.width*src.height
+    val px = for {
+      xPos <- (x - radius) until (x + radius + 1)
+      yPos <- (y - radius) until (y + radius + 1)
+      if (xPos > -1 && yPos > -1 && xPos < src.width && yPos < src.height)
+    } yield src.apply(xPos, yPos)
 
-    val totalRGBAs = allRGBAs.length
+    val aggregatedComponents = px.foldLeft(0,0,0,0,0) {
+      case ((r, g, b, a, count), y) =>
+        (r + red(y), g + green(y), b + blue(y), a + alpha(y), count + 1)
+    }
 
-    (allRGBAs map ( px => {
-      (red(px) + green(px) + blue(px) + alpha(px))/4
-    }) sum)/totalRGBAs
+    aggregatedComponents match {
+      case (r, g, b, a, count) =>
+        if (count > 0) rgba(r / count, g / count, b / count, a / count)
+        else rgba(r, g, b, a)
+    }
   }
 }
